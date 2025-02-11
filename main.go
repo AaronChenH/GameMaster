@@ -184,6 +184,7 @@ func main() {
 		api.GET("/users", middleware.CheckPermission("manage_users"), handlers.GetUsers)
 		api.PUT("/users/:id/status", middleware.CheckPermission("manage_users"), handlers.UpdateUserStatus)
 		api.PUT("/users/:id/password", middleware.CheckPermission("manage_users"), handlers.ResetPassword)
+		api.DELETE("/users/:id", middleware.CheckPermission("manage_users"), handlers.DeleteUser)
 
 		// 玩家相关
 		api.GET("/player/info/:id", middleware.CheckPermission("player_info"), handlers.GetPlayerInfo)

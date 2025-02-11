@@ -210,3 +210,47 @@ func CreateNewUser(c *gin.Context) {
 
 	c.JSON(200, gin.H{"message": "创建成功"})
 }
+
+// DeleteUser 删除用户
+// @Summary 删除用户
+// @Description 删除指定用户，管理员账户不能删除
+// @Tags 用户管理
+// @Accept json
+// @Produce json
+// @Param id path string true "用户ID"
+// @Success 200 {object} Response
+// @Failure 400,403,404 {object} ErrorResponse
+// @Router /users/{id} [delete]
+func DeleteUser(c *gin.Context) {
+	userID := c.Param("id")
+
+	// 获取目标用户
+	collection := config.GetCollection("users")
+	var targetUser models.User
+	objID, _ := primitive.ObjectIDFromHex(userID)
+	err := collection.FindOne(context.Background(), bson.M{"_id": objID}).Decode(&targetUser)
+	if err != nil {
+		c.JSON(404, gin.H{"error": "用户不存在"})
+		return
+	}
+
+	// 检查是否是管理员账号
+	if targetUser.Role == "admin" {
+		c.JSON(403, gin.H{"error": "不能删除管理员账号"})
+		return
+	}
+
+	// 删除用户
+	_, err = collection.DeleteOne(context.Background(), bson.M{"_id": objID})
+	if err != nil {
+		c.JSON(500, gin.H{"error": "删除用户失败"})
+		return
+	}
+
+	logrus.WithFields(logrus.Fields{
+		"operator":    c.GetString("username"),
+		"target_user": userID,
+	}).Info("删除用户操作")
+
+	c.JSON(200, gin.H{"message": "用户删除成功"})
+}

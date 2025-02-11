@@ -567,18 +567,51 @@
         
         users.forEach(user => {
             const tr = document.createElement('tr');
+            const isAdmin = user.role === 'admin';
             tr.innerHTML = `
                 <td>${user.username}</td>
                 <td>${user.role}</td>
                 <td>${user.status === 1 ? '启用' : '禁用'}</td>
                 <td>${new Date(user.created_at).toLocaleString()}</td>
                 <td>
-                    <button class="button" onclick="toggleUserStatus('${user.id}', ${user.status})">${user.status === 1 ? '禁用' : '启用'}</button>
+                    ${!isAdmin ? `
+                    <button class="button" onclick="toggleUserStatus('${user.id}', ${user.status})">
+                        ${user.status === 1 ? '禁用' : '启用'}
+                    </button>
                     <button class="button" onclick="resetPassword('${user.id}')">重置密码</button>
+                    <button class="button" onclick="deleteUser('${user.id}')">删除</button>
+                    ` : '管理员账户不可操作'}
                 </td>
             `;
             tbody.appendChild(tr);
         });
+    }
+
+    // 删除用户
+    async function deleteUser(userId) {
+        if (!confirm('确定要删除该用户吗？此操作不可恢复。')) {
+            return;
+        }
+        
+        try {
+            const response = await fetch(`/users/${userId}`, {
+                method: 'DELETE',
+                headers: {
+                    'Authorization': 'Bearer ' + localStorage.getItem('token')
+                }
+            });
+
+            const data = await response.json();
+            if (response.ok) {
+                alert('删除成功');
+                fetchUsers(); // 刷新用户列表
+            } else {
+                alert(data.error || '删除失败');
+            }
+        } catch (error) {
+            console.error('删除用户失败:', error);
+            alert('删除用户失败');
+        }
     }
     </script>
 </body>
