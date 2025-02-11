@@ -75,3 +75,6 @@ start.bat
 
 ## 许可证
 [MIT License](LICENSE)
+
+## 维护者
+- **AaronChenH**: 项目创始人及核心维护者

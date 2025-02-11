@@ -1,3 +1,5 @@
+// 认证处理器 - 由 AaronChenH 维护
+// 包含登录、注销、权限验证等功能
 package handlers
 
 import (
@@ -13,6 +15,8 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
+// LoginRequest 登录请求结构
+// 注意: 字段需要与前端表单保持一致
 type LoginRequest struct {
 	Username string `json:"username" binding:"required"`
 	Password string `json:"password" binding:"required"`
@@ -28,6 +32,16 @@ const (
 	SecretKey = "your-secret-key" // 实际使用时应该放在配置文件中
 )
 
+// LoginHandler 处理用户登录
+// @Summary 用户登录
+// @Description 处理用户登录请求
+// @Tags 认证
+// @Accept json
+// @Produce json
+// @Param request body LoginRequest true "登录凭证"
+// @Success 200 {object} Response
+// @Failure 400 {object} ErrorResponse
+// @Router /login [post]
 func Login(c *gin.Context) {
 	var req LoginRequest
 	if err := c.ShouldBindJSON(&req); err != nil {

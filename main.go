@@ -1,3 +1,7 @@
+// 主程序入口
+// 版本: 1.0.0
+// 作者: AaronChenH <your.email@example.com>
+// 创建时间: 2023-08-20
 package main
 
 import (
@@ -6,6 +10,7 @@ import (
 	"game-admin/handlers"
 	"game-admin/middleware"
 	"io"
+	"net/http"
 	"os"
 	"path"
 	"time"
@@ -14,6 +19,27 @@ import (
 	"github.com/sirupsen/logrus"
 	"gopkg.in/natefinch/lumberjack.v2"
 )
+
+// 应用配置结构体
+type Config struct {
+	Port     int    `json:"port"`     // 服务监听端口
+	Env      string `json:"env"`      // 运行环境 (dev/test/prod)
+	LogLevel string `json:"logLevel"` // 日志等级 (debug/info/warn/error)
+}
+
+// 全局配置实例
+var appConfig Config
+
+// init 初始化函数
+// 注意: 在main函数之前执行
+func init() {
+	// TODO: 从配置文件加载配置
+	appConfig = Config{
+		Port:     8080,
+		Env:      "dev",
+		LogLevel: "debug",
+	}
+}
 
 // 初始化日志配置
 func initLogger() {
@@ -122,6 +148,9 @@ func LoggerMiddleware() gin.HandlerFunc {
 	}
 }
 
+// main 程序主函数
+// @Description 应用启动入口
+// @Router / [get]
 func main() {
 	// 初始化日志
 	initLogger()
@@ -169,7 +198,10 @@ func main() {
 		c.HTML(200, "user_management.html", nil)
 	})
 
-	r.Run(":8080")
+	// 启动HTTP服务
+	addr := fmt.Sprintf(":%d", appConfig.Port)
+	fmt.Printf("Starting server on %s (Environment: %s)\n", addr, appConfig.Env)
+	http.ListenAndServe(addr, r)
 
 	logrus.Info("服务器启动成功，端口：8080")
 }

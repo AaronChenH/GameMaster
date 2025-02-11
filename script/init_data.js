@@ -1,3 +1,11 @@
+/**
+ * 数据库初始化脚本 - AaronChenH
+ * 版本: 1.1.0
+ * 使用说明:
+ * 1. 配置数据库连接信息
+ * 2. 执行 node init_data.js
+ */
+
 // 切换到指定数据库
 db = db.getSiblingDB('galaxy_empire_manager');
 
