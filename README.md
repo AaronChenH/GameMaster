@@ -27,8 +27,8 @@
 ### 安装步骤
 1. 克隆项目
 ```bash
-git clone https://github.com/your-username/galaxy-empire-manager.git
-cd galaxy-empire-manager
+git clone https://github.com/AaronChenH/GameMaster.git
+cd GameMaster
 ```
 
 2. 安装依赖
