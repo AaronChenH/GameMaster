@@ -163,3 +163,50 @@ func CreateUser(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{"message": "创建成功"})
 }
+
+// CreateNewUser 创建新用户
+func CreateNewUser(c *gin.Context) {
+	// 检查当前用户是否是管理员
+	if c.GetString("role") != "admin" {
+		c.JSON(403, gin.H{"error": "无权限"})
+		return
+	}
+
+	var req CreateUserRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(400, gin.H{"error": err.Error()})
+		return
+	}
+
+	// 检查用户名是否已存在
+	collection := config.GetCollection("users")
+	count, _ := collection.CountDocuments(context.Background(), bson.M{"username": req.Username})
+	if count > 0 {
+		c.JSON(400, gin.H{"error": "用户名已存在"})
+		return
+	}
+
+	// 加密密码
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(req.Password), bcrypt.DefaultCost)
+	if err != nil {
+		c.JSON(500, gin.H{"error": "密码加密失败"})
+		return
+	}
+
+	user := models.User{
+		Username:  req.Username,
+		Password:  string(hashedPassword),
+		Role:      req.Role,
+		Status:    1,
+		CreatedAt: time.Now(),
+		UpdatedAt: time.Now(),
+	}
+
+	_, err = collection.InsertOne(context.Background(), user)
+	if err != nil {
+		c.JSON(500, gin.H{"error": "创建用户失败"})
+		return
+	}
+
+	c.JSON(200, gin.H{"message": "创建成功"})
+}
