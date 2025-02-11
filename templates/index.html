@@ -1,0 +1,585 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Galaxy Empire Manager</title>
+    <meta charset="UTF-8">
+    <style>
+        :root {
+            --primary-color: #00f3ff;
+            --secondary-color: #0a1929;
+            --accent-color: #1a88ff;
+            --text-color: #e0e0e0;
+            --border-color: #2a4c6d;
+        }
+
+        body {
+            font-family: 'Orbitron', sans-serif;
+            background: linear-gradient(135deg, #0a1929 0%, #1a2635 100%);
+            color: var(--text-color);
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        h1, h2, h3 {
+            color: var(--primary-color);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            text-shadow: 0 0 10px rgba(0, 243, 255, 0.5);
+        }
+
+        .search-box, .player-info, .item-form {
+            background: rgba(10, 25, 41, 0.8);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+            box-shadow: 0 0 20px rgba(0, 243, 255, 0.1);
+            backdrop-filter: blur(10px);
+        }
+
+        .button {
+            background: linear-gradient(45deg, var(--accent-color), var(--primary-color));
+            color: #fff;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            text-transform: uppercase;
+            font-weight: bold;
+            letter-spacing: 1px;
+            transition: all 0.3s ease;
+            text-shadow: 0 0 5px rgba(0, 243, 255, 0.5);
+        }
+
+        .button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 0 15px rgba(0, 243, 255, 0.4);
+        }
+
+        input[type="text"], input[type="password"], input[type="number"] {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid var(--border-color);
+            color: var(--text-color);
+            padding: 12px;
+            margin: 5px;
+            border-radius: 4px;
+            transition: all 0.3s ease;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 10px rgba(0, 243, 255, 0.3);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            background: rgba(10, 25, 41, 0.6);
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border: 1px solid var(--border-color);
+        }
+
+        th {
+            background: rgba(0, 243, 255, 0.1);
+            color: var(--primary-color);
+        }
+
+        .error {
+            color: #ff4444;
+            text-shadow: 0 0 5px rgba(255, 68, 68, 0.5);
+        }
+
+        .success {
+            color: #44ff44;
+            text-shadow: 0 0 5px rgba(68, 255, 68, 0.5);
+        }
+
+        #loginForm {
+            max-width: 400px;
+            margin: 100px auto;
+            text-align: center;
+            padding: 40px;
+            background: rgba(10, 25, 41, 0.9);
+            border-radius: 10px;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 0 30px rgba(0, 243, 255, 0.2);
+        }
+
+        #loginForm input {
+            width: calc(100% - 40px);
+            margin: 10px 0;
+        }
+
+        .glow {
+            animation: glow 2s ease-in-out infinite alternate;
+        }
+
+        @keyframes glow {
+            from {
+                text-shadow: 0 0 5px var(--primary-color),
+                           0 0 10px var(--primary-color),
+                           0 0 15px var(--primary-color);
+            }
+            to {
+                text-shadow: 0 0 10px var(--primary-color),
+                           0 0 20px var(--primary-color),
+                           0 0 30px var(--primary-color);
+            }
+        }
+
+        /* 添加导航菜单样式 */
+        .nav-menu {
+            background-color: #2a2a2a;
+            padding: 10px 0;
+            margin-bottom: 20px;
+            display: none; /* 默认隐藏，登录后显示 */
+        }
+
+        .nav-menu ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+        }
+
+        .nav-menu li {
+            margin: 0 15px;
+        }
+
+        .nav-menu a {
+            color: var(--text-color);
+            text-decoration: none;
+            padding: 5px 10px;
+            border-radius: 4px;
+            transition: background-color 0.3s;
+        }
+
+        .nav-menu a:hover {
+            background-color: var(--primary-color);
+        }
+
+        /* 内容区域样式 */
+        .content-area {
+            display: none; /* 默认隐藏，根据导航切换显示 */
+        }
+
+        .content-area.active {
+            display: block;
+        }
+
+        /* 模态框样式 */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            z-index: 1000;
+        }
+
+        .modal-content {
+            background: rgba(10, 25, 41, 0.95);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 20px;
+            width: 80%;
+            max-width: 500px;
+            margin: 15% auto;
+            position: relative;
+            box-shadow: 0 0 20px rgba(0, 243, 255, 0.2);
+        }
+
+        .modal-content h3 {
+            margin-top: 0;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            color: var(--primary-color);
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            color: var(--text-color);
+        }
+
+        .modal-buttons {
+            margin-top: 20px;
+            text-align: right;
+        }
+
+        .modal-buttons .button {
+            margin-left: 10px;
+        }
+
+        .button.cancel {
+            background: linear-gradient(45deg, #666, #888);
+        }
+    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <!-- 登录表单 -->
+        <div id="loginForm">
+            <h2 class="glow">系统登录</h2>
+            <input type="text" id="username" placeholder="用户名">
+            <input type="password" id="password" placeholder="密码">
+            <button class="button" onclick="login()">进入系统</button>
+        </div>
+
+        <!-- 导航菜单 -->
+        <div id="navMenu" class="nav-menu">
+            <ul>
+                <li><a href="#" onclick="showContent('dashboard')">控制台</a></li>
+                <li><a href="#" onclick="showContent('userManagement')" id="userManagementLink" style="display: none;">用户管理</a></li>
+                <li><a href="#" onclick="logout()">退出登录</a></li>
+            </ul>
+        </div>
+
+        <!-- 主要内容区域 -->
+        <div id="mainContent">
+            <!-- 控制台内容 -->
+            <div id="dashboard" class="content-area">
+                <h1 class="glow">游戏管理控制台</h1>
+                <div class="search-box">
+                    <h2>查询玩家信息</h2>
+                    <input type="text" id="playerIdSearch" placeholder="输入玩家ID">
+                    <button class="button" onclick="searchPlayer()">查询</button>
+                </div>
+
+                <div class="player-info" id="playerInfo" style="display: none;">
+                    <h2>玩家信息</h2>
+                    <p>玩家ID: <span id="playerId"></span></p>
+                    <p>昵称: <span id="nickname"></span></p>
+                    <p>等级: <span id="level"></span></p>
+                    <p>VIP等级: <span id="vipLevel"></span></p>
+                    <p>创建时间: <span id="createdAt"></span></p>
+                    
+                    <h3>物品列表</h3>
+                    <table id="itemsTable" border="1" style="width: 100%; border-collapse: collapse;">
+                        <thead>
+                            <tr>
+                                <th>物品ID</th>
+                                <th>数量</th>
+                            </tr>
+                        </thead>
+                        <tbody id="itemsList">
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="item-form">
+                    <h2>发放道具</h2>
+                    <input type="text" id="playerIdItem" placeholder="玩家ID">
+                    <input type="text" id="itemId" placeholder="道具ID">
+                    <input type="number" id="amount" placeholder="数量">
+                    <button class="button" onclick="giveItem()">发放</button>
+                    <div id="giveItemResult"></div>
+                </div>
+            </div>
+
+            <!-- 用户管理内容 -->
+            <div id="userManagement" class="content-area">
+                <div class="card">
+                    <h2>账户管理</h2>
+                    <button class="button" onclick="showCreateUserModal()">创建新账户</button>
+                    <table id="userTable">
+                        <thead>
+                            <tr>
+                                <th>用户名</th>
+                                <th>角色</th>
+                                <th>状态</th>
+                                <th>创建时间</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- 创建用户的模态框 -->
+        <div id="createUserModal" class="modal">
+            <div class="modal-content">
+                <h3>创建新账户</h3>
+                <div class="form-group">
+                    <label>用户名</label>
+                    <input type="text" id="newUsername" placeholder="请输入用户名">
+                </div>
+                <div class="form-group">
+                    <label>密码</label>
+                    <input type="password" id="newPassword" placeholder="请输入密码">
+                </div>
+                <div class="form-group">
+                    <label>角色</label>
+                    <select id="newRole">
+                        <option value="admin">管理员</option>
+                        <option value="service">客服</option>
+                    </select>
+                </div>
+                <div class="modal-buttons">
+                    <button class="button cancel" onclick="hideCreateUserModal()">取消</button>
+                    <button class="button" onclick="createUser()">创建</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+    let token = '';
+
+    async function login() {
+        const username = document.getElementById('username').value;
+        const password = document.getElementById('password').value;
+        
+        try {
+            const response = await fetch('/login', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    username: username,
+                    password: password
+                })
+            });
+            
+            if (response.ok) {
+                const data = await response.json();
+                localStorage.setItem('token', data.token);
+                
+                // 显示导航菜单
+                document.getElementById('loginForm').style.display = 'none';
+                document.getElementById('navMenu').style.display = 'block';
+                
+                // 如果是管理员，显示用户管理链接
+                if (data.user.role === 'admin') {
+                    document.getElementById('userManagementLink').style.display = 'inline';
+                }
+                
+                // 显示默认内容
+                showContent('dashboard');
+            } else {
+                alert(data.error || '登录失败');
+            }
+        } catch (error) {
+            alert('登录请求失败');
+        }
+    }
+
+    async function searchPlayer() {
+        const playerId = document.getElementById('playerIdSearch').value;
+        try {
+            const response = await fetch(`/player/info/${playerId}`, {
+                headers: {
+                    'Authorization': `Bearer ${localStorage.getItem('token')}`
+                }
+            });
+            const data = await response.json();
+            
+            if (response.ok) {
+                document.getElementById('playerInfo').style.display = 'block';
+                document.getElementById('playerId').textContent = data.player_id;
+                document.getElementById('nickname').textContent = data.nickname;
+                document.getElementById('level').textContent = data.level;
+                document.getElementById('vipLevel').textContent = data.vip_level;
+                document.getElementById('createdAt').textContent = new Date(data.created_at).toLocaleString();
+                
+                const itemsList = document.getElementById('itemsList');
+                itemsList.innerHTML = '';
+                data.items.forEach(item => {
+                    itemsList.innerHTML += `
+                        <tr>
+                            <td>${item.item_id}</td>
+                            <td>${item.amount}</td>
+                        </tr>
+                    `;
+                });
+            } else {
+                alert(data.error || '查询失败');
+            }
+        } catch (error) {
+            alert('请求失败');
+        }
+    }
+
+    async function giveItem() {
+        const playerId = document.getElementById('playerIdItem').value;
+        const itemId = document.getElementById('itemId').value;
+        const amount = document.getElementById('amount').value;
+        
+        try {
+            const response = await fetch('/player/item', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${localStorage.getItem('token')}`
+                },
+                body: JSON.stringify({
+                    player_id: playerId,
+                    item_id: itemId,
+                    amount: parseInt(amount)
+                })
+            });
+            
+            const data = await response.json();
+            const resultDiv = document.getElementById('giveItemResult');
+            
+            if (response.ok) {
+                resultDiv.className = 'success';
+                resultDiv.textContent = '道具发放成功';
+                // 自动刷新玩家信息
+                if (playerId === document.getElementById('playerIdSearch').value) {
+                    searchPlayer();
+                }
+            } else {
+                resultDiv.className = 'error';
+                resultDiv.textContent = data.error || '发放失败';
+            }
+        } catch (error) {
+            document.getElementById('giveItemResult').className = 'error';
+            document.getElementById('giveItemResult').textContent = '请求失败';
+        }
+    }
+
+    // 内容切换函数
+    function showContent(contentId) {
+        // 隐藏所有内容
+        document.querySelectorAll('.content-area').forEach(element => {
+            element.classList.remove('active');
+        });
+        
+        // 显示选中的内容
+        document.getElementById(contentId).classList.add('active');
+        
+        // 如果是用户管理页面，加载用户列表
+        if (contentId === 'userManagement') {
+            fetchUsers();
+        }
+    }
+
+    // 退出登录
+    function logout() {
+        localStorage.removeItem('token');
+        window.location.reload();
+    }
+
+    // 显示创建用户模态框
+    function showCreateUserModal() {
+        document.getElementById('createUserModal').style.display = 'block';
+        // 清空表单
+        document.getElementById('newUsername').value = '';
+        document.getElementById('newPassword').value = '';
+        document.getElementById('newRole').value = 'service';
+    }
+
+    // 隐藏创建用户模态框
+    function hideCreateUserModal() {
+        document.getElementById('createUserModal').style.display = 'none';
+    }
+
+    // 创建新用户
+    async function createUser() {
+        const username = document.getElementById('newUsername').value;
+        const password = document.getElementById('newPassword').value;
+        const role = document.getElementById('newRole').value;
+
+        if (!username || !password) {
+            alert('用户名和密码不能为空');
+            return;
+        }
+
+        try {
+            const response = await fetch('/users', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': 'Bearer ' + localStorage.getItem('token')
+                },
+                body: JSON.stringify({ username, password, role })
+            });
+
+            const data = await response.json();
+            if (response.ok) {
+                alert('创建成功');
+                hideCreateUserModal();
+                fetchUsers();
+            } else {
+                alert(data.error || '创建失败');
+            }
+        } catch (error) {
+            console.error('创建用户失败:', error);
+            alert('创建用户失败');
+        }
+    }
+
+    // 获取用户列表
+    async function fetchUsers() {
+        try {
+            const response = await fetch('/users', {
+                headers: {
+                    'Authorization': 'Bearer ' + localStorage.getItem('token')
+                }
+            });
+            const data = await response.json();
+            if (response.ok) {
+                renderUserTable(data);
+            } else {
+                alert('获取用户列表失败');
+            }
+        } catch (error) {
+            console.error('获取用户列表失败:', error);
+        }
+    }
+
+    // 渲染用户表格
+    function renderUserTable(users) {
+        const tbody = document.querySelector('#userTable tbody');
+        tbody.innerHTML = '';
+        
+        users.forEach(user => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td>${user.username}</td>
+                <td>${user.role}</td>
+                <td>${user.status === 1 ? '启用' : '禁用'}</td>
+                <td>${new Date(user.created_at).toLocaleString()}</td>
+                <td>
+                    <button class="button" onclick="toggleUserStatus('${user.id}', ${user.status})">${user.status === 1 ? '禁用' : '启用'}</button>
+                    <button class="button" onclick="resetPassword('${user.id}')">重置密码</button>
+                </td>
+            `;
+            tbody.appendChild(tr);
+        });
+    }
+    </script>
+</body>
+</html> 

@@ -1,0 +1,3 @@
+@echo off
+echo 正在启动 MongoDB 服务...
+"C:\Program Files\MongoDB\Server\7.0\bin\mongod.exe" --dbpath="C:\data\db" 
